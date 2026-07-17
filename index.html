@@ -33,12 +33,12 @@
   <div id="hero-pin" style="height: 260vh; position: relative;">
     <div style="position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #1c2836;">
       <video id="hero-parallax" src="assets/huddle-hero.mp4" autoplay="" muted="" loop="" playsinline="" style="position: absolute; top: -80px; left: 0; width: 100%; height: calc(100% + 160px); object-fit: cover; opacity: 1; transform: translateY(0px); will-change: transform;"></video>
-      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,17,23,0.28) 0%, rgba(12,17,23,0.18) 42%, rgba(12,17,23,0.55) 100%);"></div>
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,17,23,0.42) 0%, rgba(12,17,23,0.30) 42%, rgba(12,17,23,0.64) 100%);"></div>
 
       <div style="position: relative; flex: 1;">
-        <div id="hero-ring" style="position: absolute; top: 50%; left: 50%; width: 80vh; height: 80vh; border-radius: 50%; background: conic-gradient(from 210deg, #03C3DD, #2f86dd, #6b5cd6, #b74fbf, #F2065B, #f85a3b, #F96816, #F9AE06, #03C3DD); -webkit-mask-image: radial-gradient(circle, transparent 0 calc(50% - 1.6vh), black calc(50% - 1.4vh) 100%); mask-image: radial-gradient(circle, transparent 0 calc(50% - 1.6vh), black calc(50% - 1.4vh) 100%); opacity: 0.7; filter: blur(0px); transform: translate(-50%, -50%); will-change: transform, opacity, filter"></div>
+        <div id="hero-ring" style="position: absolute; top: calc(50% + 37px); left: 50%; width: calc(84vh - 74px); height: calc(84vh - 74px); border-radius: 50%; background: conic-gradient(from 210deg, #03C3DD, #2f86dd, #6b5cd6, #b74fbf, #F2065B, #f85a3b, #F96816, #F9AE06, #03C3DD); -webkit-mask-image: radial-gradient(circle, transparent 0 calc(50% - 1.6vh), black calc(50% - 1.4vh) 100%); mask-image: radial-gradient(circle, transparent 0 calc(50% - 1.6vh), black calc(50% - 1.4vh) 100%); opacity: 0.7; filter: blur(0px); transform: translate(-50%, -50%); will-change: transform, opacity, filter"></div>
 
-        <div id="hero-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.6vh; will-change: transform;">
+        <div id="hero-text" style="position: absolute; top: calc(50% + 37px); left: 50%; transform: translate(-50%, -50%); z-index: 3; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.6vh; will-change: transform;">
           <div style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: min(7.4vh, 8.4vw); line-height: 1; color: white; letter-spacing: -0.01em; white-space: nowrap;">Great teams</div>
           <div style="position: relative; min-width: min(56vh, 92vw); height: 1.1em; display: flex; align-items: center; justify-content: center;">
             <div id="hero-line-a" style="position: absolute; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: min(7.4vh, 8.4vw); line-height: 1; color: white; letter-spacing: -0.01em; white-space: nowrap; opacity: 1; filter: blur(0px); transform: translateY(0vh); will-change: transform, opacity, filter;">don't just happen.</div>
@@ -46,7 +46,7 @@
           </div>
         </div>
 
-        <div id="hero-dots" style="position: absolute; top: 50%; left: 50%; width: 20vh; height: 20vh; opacity: 0; filter: blur(22px); transform: translate(-50%, calc(-50% + 12vh)) translateY(48vh); z-index: 4; will-change: transform, opacity, filter;">
+        <div id="hero-dots" style="position: absolute; top: calc(50% + 37px); left: 50%; width: 20vh; height: 20vh; opacity: 0; filter: blur(22px); transform: translate(-50%, calc(-50% + 12vh)) translateY(48vh); z-index: 4; will-change: transform, opacity, filter;">
           <img src="assets/HuddleBrandmark.svg" alt="Huddle brandmark" style="width: 100%; height: 100%; display: block;">
         </div>
       </div>
@@ -281,12 +281,12 @@ class Component extends DCLogic {
     const byText = (t) => divs.find((e) => e.children.length === 0 && e.textContent.trim() === t);
     const gt = byText('Great teams');
     this._nodes = {
-      pin: sig(/260vh/),
-      ring: divs.find((e) => { const s = e.getAttribute('style') || ''; return /80vh/.test(s) && /border-radius/.test(s) && /mask-image/.test(s); }),
+      pin: document.getElementById('hero-pin'),
+      ring: document.getElementById('hero-ring'),
       text: gt ? gt.parentElement : null,
       lineA: byText("don't just happen."),
       lineB: byText('start with a Huddle'),
-      dots: divs.find((e) => { const s = e.getAttribute('style') || ''; return /20vh/.test(s) && /z-index: 4/.test(s); }),
+      dots: document.getElementById('hero-dots'),
       para: document.querySelector('video'),
     };
     return this._nodes;

@@ -227,6 +227,7 @@
     .no-crane #top-canvas,.no-crane #bottom-canvas{display:none}
     .no-crane #bottom-vignette{display:none}
     .no-crane #top-region{background:#0a0a0a}
+    .no-crane #top-copy{transform:none!important}
     .no-crane #title-overlay{position:static;height:auto;margin-bottom:0;padding:80px 24px 8px;background:none}
     .no-crane #top-pin .top-stack{height:auto;padding:8px 24px 90px}
     .no-crane #bottom-copy{position:static;padding:84px 24px 20px}
@@ -266,11 +267,11 @@
   <!-- TOP BOOKEND: sticky heading, three pillars fade to reveal the cards -->
   <div id="top-region" style="position:relative;background:#0a0a0a">
     <div id="title-overlay" style="position:sticky;top:0;height:100vh;z-index:20;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;padding:clamp(9vh,12vh,14vh) 24px 0;margin-bottom:-100vh">
-      <div id="top-copy" style="pointer-events:none">
-        <h1 class="poppins" style="margin:0;font-weight:800;font-size:clamp(2.3rem,5.8vw,4.4rem);line-height:1.06;letter-spacing:-0.01em"><span style="background:linear-gradient(90deg,#00B9DA,#0063C8,#F2065B,#F96002,#F7AA00,#00B9DA,#0063C8,#F2065B,#F96002,#F7AA00,#00B9DA);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:gradmove 9s linear infinite">One smart system.</span></h1>
+      <div id="top-copy" style="pointer-events:none;will-change:transform,opacity;transform:translateY(calc(50vh - clamp(9vh,12vh,14vh) - 50%))">
+        <h1 class="poppins" style="margin:0;font-weight:800;font-size:clamp(2.7rem,5.8vw,4.7rem);line-height:1.06;letter-spacing:-0.01em"><span style="background:linear-gradient(90deg,#00B9DA,#0063C8,#F2065B,#F96002,#F7AA00,#00B9DA,#0063C8,#F2065B,#F96002,#F7AA00,#00B9DA);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:gradmove 9s linear infinite">One smart system.</span></h1>
       </div>
     </div>
-    <div id="top-pin" data-screen-label="Pillars" style="height:150vh;position:relative">
+    <div id="top-pin" data-screen-label="Pillars" style="height:190vh;position:relative">
       <div style="position:sticky;top:0;height:100vh;overflow:hidden">
         <canvas id="top-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
         <div class="top-stack" style="position:relative;z-index:3;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6vh 0 0">
@@ -837,16 +838,16 @@ class Component extends DCLogic {
         this._revealCards();
         obs.unobserve(e.target);
       });
-    }, { root: null, rootMargin: '0px 0px 85% 0px', threshold: 0.01 });
+    }, { root: null, rootMargin: '0px 0px -12% 0px', threshold: 0.05 });
     flips.forEach((f) => io.observe(f));
   }
 
   _revealCards() {
     if (this._cardsRevealed) return;
     this._cardsRevealed = true;
-    (this._flips || []).forEach((f, i) => setTimeout(() => f.classList.add('in'), 700 + i * 200));
+    (this._flips || []).forEach((f, i) => setTimeout(() => f.classList.add('in'), 90 + i * 150));
     const meta = document.querySelector('.shared-meta');
-    if (meta) setTimeout(() => meta.classList.add('in'), 700 + this._flips.length * 200 + 260);
+    if (meta) setTimeout(() => meta.classList.add('in'), 90 + this._flips.length * 150 + 240);
   }
 
   /* ---------- interactive diagram (bottom) ---------- */
@@ -1019,19 +1020,27 @@ class Component extends DCLogic {
         return { positions, distEnd };
       },
       onFrame: (p, u) => {
-        const cross = u.smooth(u.clamp((p - 0.5) / 0.16, 0, 1));
-        // toward the end of the pinned section the discs + their labels fade
-        // back out together, timed to land as the cards below float in
-        const out = u.smooth(u.clamp((p - 0.72) / 0.16, 0, 1));
+        // Beat 1 (p 0–~0.45): title owns the centre of the screen while the
+        // pillars crane up; it floats to its resting top position as they rise.
+        // Beat 2 (p ~0.45–0.62): pillars crossfade into the labelled discs —
+        // title seated at top, discs centred, cards still below the fold.
+        // Beat 3 (p 0.78+): title + discs drift up and fade as the cards float in.
+        const rise = u.smooth(u.clamp((p - 0.06) / 0.26, 0, 1));
+        const cross = u.smooth(u.clamp((p - 0.45) / 0.17, 0, 1));
+        const out = u.smooth(u.clamp((p - 0.78) / 0.15, 0, 1));
         if (canvas) canvas.style.opacity = String((1 - cross) * (1 - out));
         if (discs) {
           discs.style.opacity = String(cross * (1 - out));
-          discs.style.transform = `translateY(${(((1 - cross) * 20) - out * 28).toFixed(1)}px)`;
+          discs.style.transform = `translateY(${(((1 - cross) * 20) - out * 34).toFixed(1)}px)`;
         }
         const copy = document.getElementById('top-copy');
-        // fade the sticky "One smart system" title out together with the discs
-        // as the cards scroll up into place
-        if (copy) copy.style.opacity = String(1 - out);
+        const overlay = document.getElementById('title-overlay');
+        if (copy && overlay) {
+          // exact px offset from resting (top) position down to viewport centre
+          const off = overlay.clientHeight / 2 - copy.offsetTop - copy.offsetHeight / 2;
+          copy.style.transform = `translateY(${(off * (1 - rise) - out * 34).toFixed(1)}px)`;
+          copy.style.opacity = String(1 - out);
+        }
         // as the pillars/discs start fading, kick the cards below into their
         // float-up so they rise up underneath the sticky title
         if (out > 0.02) this._revealCards();
